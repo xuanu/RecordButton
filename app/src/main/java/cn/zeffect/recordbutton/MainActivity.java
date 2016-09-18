@@ -15,12 +15,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         img = (RecordButton) findViewById(R.id.img);
-        // img.setSavePath();//可选
-        //img.setMaxIntervalTime();//可选
         img.setOnFinishedRecordListener(new RecordButton.OnFinishedRecordListener() {
             @Override
             public void onFinishedRecord(String audioPath) {
                 //录音完成回调
+            }
+
+            @Override
+            public void readCancel() {
+
+            }
+
+            @Override
+            public void noCancel() {
+
             }
         });
         //img.getDrawable().setLevel(4000);

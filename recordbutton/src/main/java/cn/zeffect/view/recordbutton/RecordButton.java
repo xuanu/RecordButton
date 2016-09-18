@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by xuan on 2016/6/8.
@@ -29,7 +30,12 @@ public class RecordButton extends Button {
     private final int Volume_What_100 = 100;
     private final int Time_What_101 = 101;
     private final int CancelRecordWhat_102 = 102;
-    private String mFilePath = null;
+    private String mFilePath = "";
+    private String mFileName = "";
+    /**
+     * 文件路径
+     **/
+    private String mFile;
     private OnFinishedRecordListener finishedListener;
     /**
      * 最短录音时间
@@ -46,7 +52,7 @@ public class RecordButton extends Button {
     private MediaRecorder mRecorder;
     private ObtainDecibelThread mthread;
     private Handler mVolumeHandler;
-    private int CANCLE_LENGTH = -200;// 上滑取消距离
+    private int CANCLE_LENGTH = -200;// 默认上滑取消距离
 
     public RecordButton(Context context) {
         super(context);
@@ -70,33 +76,61 @@ public class RecordButton extends Button {
      */
     public void setSavePath(String path) {
         if (TextUtils.isEmpty(path)) {
-            mFilePath = path;
+            mFilePath = setDefaultPath();
         } else {
-            setDefaultFilePath();
+            mFilePath = path;
         }
+    }
 
+    /**
+     * 设置保存的名字
+     *
+     * @param pName
+     */
+    public void setSaveName(String pName) {
+        if (TextUtils.isEmpty(pName)) {
+            mFileName = setDefaultName();
+        } else {
+            mFileName = pName;
+        }
+    }
+
+    /**
+     * 设置默认路径
+     *
+     * @return
+     */
+    private String setDefaultPath() {
+        return getContext().getExternalFilesDir("audio").getAbsolutePath();
+    }
+
+    /***
+     * 设置默认名字
+     *
+     * @return
+     */
+    private String setDefaultName() {
+        return UUID.randomUUID().toString();
     }
 
     /****
-     * 设置最大时间。15秒-10分钟
+     * 设置最大时间
      *
-     * @param time 单位秒
+     * @param time 单位毫秒
      */
     public void setMaxIntervalTime(int time) {
-        if (time > 15 && time < 10 * 60) {
-            MAX_INTERVAL_TIME = time * 1000;
-        }
+        MAX_INTERVAL_TIME = time;
     }
 
-    private void setDefaultFilePath() {
-        File file = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis() + "");
-        if (!file.exists()) try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mFilePath = file.getAbsolutePath();
+    /**
+     * 设置最短录音时间
+     *
+     * @param time 时间毫秒
+     */
+    public void setMinIntervalTime(int time) {
+        MIN_INTERVAL_TIME = time;
     }
+
 
     /**
      * 录音完成的回调
@@ -138,8 +172,14 @@ public class RecordButton extends Button {
                     return true;
                 if (tempNowY - startY < CANCLE_LENGTH) {
                     mTitleTv.setText(getContext().getString(R.string.zeffect_recordbutton_releasing_finger_to_cancal_send));
+                    if (finishedListener != null) {
+                        finishedListener.readCancel();
+                    }
                 } else {
                     mTitleTv.setText(getContext().getString(R.string.zeffect_recordbutton_finger_up_to_cancal_send));
+                    if (finishedListener != null) {
+                        finishedListener.noCancel();
+                    }
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -153,7 +193,9 @@ public class RecordButton extends Button {
     private void initDialogAndStartRecord() {
         CANCLE_LENGTH = -this.getMeasuredHeight();
         //
-        if (TextUtils.isEmpty(mFilePath)) setDefaultFilePath();
+        if (TextUtils.isEmpty(mFilePath)) mFilePath = setDefaultPath();
+        if (TextUtils.isEmpty(mFileName)) mFileName = setDefaultName();
+        mFile = mFilePath + "/" + mFileName;
         mStartTime = System.currentTimeMillis();
         mDialog = new Dialog(getContext(), R.style.recordbutton_alert_dialog);
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_recordbutton_alert_dialog, null);
@@ -172,20 +214,20 @@ public class RecordButton extends Button {
         long intervalTime = System.currentTimeMillis() - mStartTime;
         if (intervalTime < MIN_INTERVAL_TIME) {
             Toast.makeText(getContext(), getContext().getResources().getString(R.string.zeffect_recordbutton_time_too_short), Toast.LENGTH_SHORT).show();
-            File file = new File(mFilePath);
+            File file = new File(mFile);
             if (file.exists())
                 file.delete();
             return;
         }
 
         if (finishedListener != null)
-            finishedListener.onFinishedRecord(mFilePath);
+            finishedListener.onFinishedRecord(mFile);
     }
 
     private void cancelRecord() {
         stopRecording();
         mDialog.dismiss();
-        File file = new File(mFilePath);
+        File file = new File(mFile);
         if (file.exists())
             file.delete();
     }
@@ -195,7 +237,7 @@ public class RecordButton extends Button {
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        mRecorder.setOutputFile(mFilePath);
+        mRecorder.setOutputFile(mFile);
         try {
             mRecorder.prepare();
         } catch (IOException e) {
@@ -301,10 +343,20 @@ public class RecordButton extends Button {
 
     private void setLevel(int level) {
         if (mImageView != null)
-        mImageView.getDrawable().setLevel(4000 + 6000 * level / 90);
+            mImageView.getDrawable().setLevel(4000 + 6000 * level / 90);
     }
 
     public interface OnFinishedRecordListener {
-        public void onFinishedRecord(String audioPath);
+        void onFinishedRecord(String audioPath);
+
+        /**
+         * 手指上滑，准备取消录音
+         **/
+        void readCancel();
+
+        /**
+         * 手指回退，准备继续录音
+         **/
+        void noCancel();
     }
 }
