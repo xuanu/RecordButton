@@ -26,11 +26,11 @@ allprojects {
 
 ```
 	dependencies {
-	        compile 'com.github.xuanu:RecordButton:0.0.1'
+	        compile 'com.github.xuanu:RecordButton:0.0.2'
 	}
 ```
 
 
-	< [模样出处](https://github.com/WuLiFei/AudioRecoder)
+<  [模样出处](https://github.com/WuLiFei/AudioRecoder)
 	2、截图  
 ![image](https://github.com/xuanu/RecordButton/raw/master/screenshot/430632-5a2e63b8cc49ae98.gif)
