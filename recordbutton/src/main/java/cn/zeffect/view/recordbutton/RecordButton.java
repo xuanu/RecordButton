@@ -201,7 +201,6 @@ public class RecordButton extends Button {
         } else {
             tempFileName = mFileName;
         }
-
         mFile = tempFilePath + "/" + tempFileName;
         mStartTime = System.currentTimeMillis();
         mDialog = new Dialog(getContext(), R.style.recordbutton_alert_dialog);
