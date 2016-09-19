@@ -75,9 +75,7 @@ public class RecordButton extends Button {
      * @param path
      */
     public void setSavePath(String path) {
-        if (TextUtils.isEmpty(path)) {
-            mFilePath = setDefaultPath();
-        } else {
+        if (!TextUtils.isEmpty(path)) {
             mFilePath = path;
         }
     }
@@ -88,9 +86,7 @@ public class RecordButton extends Button {
      * @param pName
      */
     public void setSaveName(String pName) {
-        if (TextUtils.isEmpty(pName)) {
-            mFileName = setDefaultName();
-        } else {
+        if (!TextUtils.isEmpty(pName)) {
             mFileName = pName;
         }
     }
@@ -100,7 +96,7 @@ public class RecordButton extends Button {
      *
      * @return
      */
-    private String setDefaultPath() {
+    private String getDefaultPath() {
         return getContext().getExternalFilesDir("audio").getAbsolutePath();
     }
 
@@ -109,7 +105,7 @@ public class RecordButton extends Button {
      *
      * @return
      */
-    private String setDefaultName() {
+    private String getDefaultName() {
         return UUID.randomUUID().toString();
     }
 
@@ -193,9 +189,19 @@ public class RecordButton extends Button {
     private void initDialogAndStartRecord() {
         CANCLE_LENGTH = -this.getMeasuredHeight();
         //
-        if (TextUtils.isEmpty(mFilePath)) mFilePath = setDefaultPath();
-        if (TextUtils.isEmpty(mFileName)) mFileName = setDefaultName();
-        mFile = mFilePath + "/" + mFileName;
+        String tempFilePath = "";
+        if (TextUtils.isEmpty(mFilePath)) {
+            tempFilePath = getDefaultPath();
+        } else {
+            tempFilePath = mFilePath;
+        }
+        String tempFileName = "";
+        if (TextUtils.isEmpty(mFileName)) {
+            tempFileName = getDefaultName();
+        } else {
+            tempFileName = mFileName;
+        }
+        mFile = tempFilePath + "/" + tempFileName;
         mStartTime = System.currentTimeMillis();
         mDialog = new Dialog(getContext(), R.style.recordbutton_alert_dialog);
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_recordbutton_alert_dialog, null);
