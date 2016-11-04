@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
+ * 录音按钮
  * Created by xuan on 2016/6/8.
  */
 public class RecordButton extends Button {
@@ -53,6 +54,10 @@ public class RecordButton extends Button {
     private ObtainDecibelThread mthread;
     private Handler mVolumeHandler;
     private int CANCLE_LENGTH = -200;// 默认上滑取消距离
+    /**
+     * 文件名前缀
+     */
+    private String mPrefix = "";
 
     public RecordButton(Context context) {
         super(context);
@@ -92,6 +97,17 @@ public class RecordButton extends Button {
     }
 
     /**
+     * 设置文件名前缀，文件命名：前缀+UUID
+     *
+     * @param pPrefix
+     */
+    public void setPrefix(String pPrefix) {
+        if (!TextUtils.isEmpty(pPrefix)) {
+            mPrefix = pPrefix;
+        }
+    }
+
+    /**
      * 设置默认路径
      *
      * @return
@@ -106,7 +122,7 @@ public class RecordButton extends Button {
      * @return
      */
     private String getDefaultName() {
-        return UUID.randomUUID().toString();
+        return mPrefix + "_" + UUID.randomUUID().toString();
     }
 
     /****

@@ -4,9 +4,11 @@
 * 实现原理 ，按下按钮，拦截OnTouch事件，弹出对话框，实现录音
 ```
 setSavePath(path);//设置存储路径
-setSaveName(name);//设置文件名字，如果设置了名字，将会一直使用，后面的录音文件会覆盖前面的文件
+setSaveName(name);//设置文件名字，如果设置了名字，将会一直使用，后面的录音文件会覆盖前面的文件  
+setPrefix(prefix);//设置文件名前缀，不设置名字，只设置前缀，保证文件不重复，存带前缀标志   
 setMaxIntervalTime(time);//毫秒，设置最长时间
-setMinIntervalTime(time);//毫秒，设置最短录音时间
+setMinIntervalTime(time);//毫秒，设置最短录音时间  
+
 ```
 
 如何使用
