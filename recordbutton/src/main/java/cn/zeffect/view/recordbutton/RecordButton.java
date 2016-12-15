@@ -1,5 +1,6 @@
 package cn.zeffect.view.recordbutton;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -162,6 +163,9 @@ public class RecordButton extends Button {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!PermissionUtils.checkPermission(getContext(), Manifest.permission.RECORD_AUDIO, 100)) {
+            return true;
+        }
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -277,9 +281,13 @@ public class RecordButton extends Button {
             mthread = null;
         }
         if (mRecorder != null) {
-            mRecorder.stop();
-            mRecorder.release();
-            mRecorder = null;
+            try {
+                mRecorder.stop();//停止时没有prepare，就会报stop failed
+                mRecorder.release();
+                mRecorder = null;
+            } catch (RuntimeException pE) {
+
+            }
         }
     }
 
