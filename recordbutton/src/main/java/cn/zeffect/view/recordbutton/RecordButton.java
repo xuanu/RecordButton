@@ -1,6 +1,7 @@
 package cn.zeffect.view.recordbutton;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -163,8 +164,10 @@ public class RecordButton extends Button {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!PermissionUtils.checkPermission(getContext(), Manifest.permission.RECORD_AUDIO, 100)) {
-            return true;
+        if (getContext() instanceof Activity) {
+            if (!PermissionUtils.checkPermission(getContext(), Manifest.permission.RECORD_AUDIO, 100)) {
+                return true;
+            }
         }
         int action = event.getAction();
         switch (action) {

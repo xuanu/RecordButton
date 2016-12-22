@@ -8,7 +8,7 @@ setSaveName(name);//设置文件名字，如果设置了名字，将会一直使
 setPrefix(prefix);//设置文件名前缀，不设置名字，只设置前缀，保证文件不重复，存带前缀标志   
 setMaxIntervalTime(time);//毫秒，设置最长时间
 setMinIntervalTime(time);//毫秒，设置最短录音时间  
-
+//不支持Service里，因为使用了对话框
 ```
 
 如何使用
@@ -28,7 +28,7 @@ allprojects {
 
 ```
 	dependencies {
-	        compile 'com.github.xuanu:RecordButton:0.0.4'
+	        compile 'com.github.xuanu:RecordButton:0.0.5'
 	}
 ```
 
