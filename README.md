@@ -29,7 +29,7 @@ allprojects {
 
 ```
 	dependencies {
-	        compile 'com.github.xuanu:RecordButton:0.0.6'
+	        compile 'com.github.xuanu:RecordButton:0.0.7'
 	}
 ```
 
