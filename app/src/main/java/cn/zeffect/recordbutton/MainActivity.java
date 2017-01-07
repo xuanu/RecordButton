@@ -30,6 +30,21 @@ public class MainActivity extends AppCompatActivity {
             public void noCancel() {
 
             }
+
+            @Override
+            public void onActionDown() {
+
+            }
+
+            @Override
+            public void onActionUp() {
+
+            }
+
+            @Override
+            public void onActionMove() {
+
+            }
         });
         //img.getDrawable().setLevel(4000);
         //new ProgressTask().execute();

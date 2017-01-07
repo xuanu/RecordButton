@@ -14,6 +14,7 @@
         android:id="@+id/img"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:background="@drawable/btn_selector"
         android:text="录音按钮"
 
         />

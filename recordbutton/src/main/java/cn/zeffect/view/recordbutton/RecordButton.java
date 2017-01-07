@@ -60,6 +60,11 @@ public class RecordButton extends Button {
      * 文件名前缀
      */
     private String mPrefix = "";
+    /***
+     * 时间太短提示语
+     */
+    private String tooShortToastMessage = "";
+
 
     public RecordButton(Context context) {
         super(context);
@@ -146,6 +151,10 @@ public class RecordButton extends Button {
     }
 
 
+    public void setTooShortToastMessage(String pTooShortToastMessage) {
+        tooShortToastMessage = pTooShortToastMessage;
+    }
+
     /**
      * 录音完成的回调
      *
@@ -172,10 +181,16 @@ public class RecordButton extends Button {
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                if (finishedListener != null) {
+                    finishedListener.onActionDown();
+                }
                 startY = (int) event.getY();
                 initDialogAndStartRecord();
                 break;
             case MotionEvent.ACTION_UP:
+                if (finishedListener != null) {
+                    finishedListener.onActionUp();
+                }
                 int endY = (int) event.getY();
                 if (startY < 0)
                     return true;
@@ -186,6 +201,9 @@ public class RecordButton extends Button {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
+                if (finishedListener != null) {
+                    finishedListener.onActionMove();
+                }
                 int tempNowY = (int) event.getY();
                 if (startY < 0)
                     return true;
@@ -210,7 +228,7 @@ public class RecordButton extends Button {
     }
 
     private void initDialogAndStartRecord() {
-        CANCLE_LENGTH = -this.getMeasuredHeight();
+        CANCLE_LENGTH = -(this.getMeasuredHeight() / 2);
         //
         String tempFilePath = "";
         if (TextUtils.isEmpty(mFilePath)) {
@@ -242,7 +260,11 @@ public class RecordButton extends Button {
         mDialog.dismiss();
         long intervalTime = System.currentTimeMillis() - mStartTime;
         if (intervalTime < MIN_INTERVAL_TIME) {
-            Toast.makeText(getContext(), getContext().getResources().getString(R.string.zeffect_recordbutton_time_too_short), Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(tooShortToastMessage)) {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.zeffect_recordbutton_time_too_short), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), tooShortToastMessage, Toast.LENGTH_SHORT).show();
+            }
             File file = new File(mFile);
             if (file.exists())
                 file.delete();
@@ -262,7 +284,11 @@ public class RecordButton extends Button {
     }
 
     private void startRecording() {
-        mRecorder = new MediaRecorder();
+        if (mRecorder != null) {
+            mRecorder.reset();
+        } else {
+            mRecorder = new MediaRecorder();
+        }
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -286,10 +312,15 @@ public class RecordButton extends Button {
         if (mRecorder != null) {
             try {
                 mRecorder.stop();//停止时没有prepare，就会报stop failed
+                mRecorder.reset();
                 mRecorder.release();
                 mRecorder = null;
             } catch (RuntimeException pE) {
-
+                pE.printStackTrace();
+            } finally {
+                if (mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
             }
         }
     }
@@ -391,5 +422,21 @@ public class RecordButton extends Button {
          * 手指回退，准备继续录音
          **/
         void noCancel();
+
+        /***
+         * 手指按下回调
+         */
+        void onActionDown();
+
+        /***
+         * 手指抬起回调
+         */
+        void onActionUp();
+
+        /***
+         * 手指移动回调
+         */
+        void onActionMove();
+
     }
 }
